@@ -13,7 +13,7 @@ def IP(img):
     color = (0, 0, 255)
     ##execute face detections on gray colored image
     ##(image, scaleFactor,minNeighbours)
-    faces = cascade.detectMultiScale(gray, 1.25, 2)
+    faces = cascade.detectMultiScale(gray, 1.3, 6)
     count =0
 
     ##save faces in a directory
@@ -38,31 +38,42 @@ def IP(img):
     
 #動画を読込み
 #カメラ等でストリーム再生の場合は引数に0等のデバイスIDを記述する
-video = cv2.VideoCapture('sample2.mp4')
- 
-while video.isOpened():
-    #フレームを読込み
+video = cv2.VideoCapture('sample2b.mp4')
+boolean = False
+
+if video.isOpened():
+    boolean = True
+    # フレームを読込み
     ret, frame = video.read()
- 
+
+    frame = frame.transpose(0, 1, 2)  # [::-1]##rotate img to be correct orientation
+    height, width, layers = frame.shape
+    height, width = int(height*0.702), int(width*0.702)
+    size = (width, height)
+    out = cv2.VideoWriter(filename='output.mp4', apiPreference=0, fourcc=cv2.VideoWriter_fourcc(*'MP4V'), fps=15, frameSize=size)
+
+while boolean:
+    ret, frame = video.read()
+
     #フレームが読み込めなかった場合は終了（動画が終わると読み込めなくなる）
     if not ret: break
- 
+
     #-----------------
     # 画像処理を記述する
-    frame = frame.transpose(1,0,2)[::-1]##rotate img to be correct orientation
+    frame = frame.transpose(0,1,2)#[::-1]##rotate img to be correct orientation
     frame = cv2.resize(frame, dsize=None, fx=0.702, fy=0.702) # resize the img
     frame = IP(frame) # draw a rectangle
     #-----------------
-    
- 
+
     #フレームの描画
-    
-    ##cv2.imshow('frame', frame)
+    out.write(frame)
+    cv2.imshow('frame', frame)
  
     #qキーの押下で処理を中止
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'): break
- 
+
 #メモリの解放
 video.release()
 cv2.destroyAllWindows()
+out.release()
