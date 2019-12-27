@@ -1,13 +1,18 @@
 import cv2
 import numpy
 
-
-import cv2
-
-    
-
 def ImageProcessing(img,count):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+
+    # Histogram Equalization
+    gray = cv2.equalizeHist(gray)
+
+    # Image Sharpening with Gaussian Blur
+    gaussian = cv2.GaussianBlur(gray, (9, 9), 10.0)
+    gray = cv2.addWeighted(gray, 1.5, gaussian, -0.5, 0, gray)
+
+
     #obtain cascade classifiers
     FaceAddress ='C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python37-32\\'
     FaceAddress +='Lib\\site-packages\\cv2\\data\\haarcascade_frontalface_default.xml'
@@ -32,9 +37,6 @@ def ImageProcessing(img,count):
     ##minNeighbours -- If the value is bigger, it detects less objects but less misdetections. If smaller, it detects more objects but more misdetections.
 
     faces = FaceCascade.detectMultiScale(image = gray, scaleFactor = 1.25,minNeighbors= 2)
-
-
-    
 
     ##draw a rectangle for each face
     for (x,y,width,height) in faces:
@@ -101,7 +103,9 @@ def VideoProcessing(videoname):
 
         
         frame = cv2.resize(frame, dsize=None, fx=0.7, fy=0.7) # resize the img
+            # run image enhancement here
 
+            # before calling the facial detection module
         cv2.waitKey(1)
         frame,count = ImageProcessing(frame,count) # detect a face in an image
         #-----------------
