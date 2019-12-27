@@ -3,10 +3,18 @@ import numpy
 import moviepy.editor as mp
 def ImageProcessing(img,count):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # Histogram Equalization
+    gray = cv2.equalizeHist(gray)
+
+    # Image Sharpening with Gaussian Blur
+    gaussian = cv2.GaussianBlur(gray, (9, 9), 10.0)
+    gray = cv2.addWeighted(gray, 1.5, gaussian, -0.5, 0, gray)
+
+
     #obtain cascade classifiers
-    FaceAddress ='C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python37-32\\'
-    FaceAddress +='Lib\\site-packages\\cv2\\data\\haarcascade_frontalface_default.xml'
-    FaceCascade = cv2.CascadeClassifier(FaceAddress)
+    #FaceAddress ='C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python37-32\\'
+    #FaceAddress +='Lib\\site-packages\\cv2\\data\\haarcascade_frontalface_default.xml'
+    #FaceCascade = cv2.CascadeClassifier(FaceAddress)
 
 ##    EyeAddress ='C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python37-32\\'
 ##    EyeAddress +='Lib\\site-packages\\cv2\\data\\haarcascade_eye.xml'
@@ -16,7 +24,7 @@ def ImageProcessing(img,count):
 ##    MouthAddress +='Lib\\site-packages\\cv2\\data\\haarcascade_mcs_mouth.xml'
 ##    MouthCascade = cv2.CascadeClassifier(MouthAddress)
 
-
+    FaceCascade =cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
     color = (0, 0, 255)
     color2 =(0,255,0)
     color3 = (0,0,0)
@@ -26,7 +34,8 @@ def ImageProcessing(img,count):
     ##Scalse factor --how much a given image is shrunk to be processed
     ##minNeighbours -- If the value is bigger, it detects less objects but less misdetections. If smaller, it detects more objects but more misdetections.
 
-    faces = FaceCascade.detectMultiScale(image = gray, scaleFactor = 1.25,minNeighbors= 2)
+    #faces = FaceCascade.detectMultiScale(image = gray, scaleFactor = 1.25,minNeighbors= 2)
+    faces = FaceCascade.detectMultiScale(image = gray, scaleFactor = 1.2,minNeighbors= 7)
 
 
     
@@ -78,7 +87,7 @@ def VideoProcessing(videoname):
         height, width, layers = frame.shape
         height, width = int(height*0.702), int(width*0.702)
         size = (width, height)
-        out = cv2.VideoWriter(filename='output.mp4', apiPreference=0, fourcc=cv2.VideoWriter_fourcc(*'MP4V'), fps=15, frameSize=size)
+        #out = cv2.VideoWriter(filename='output.mp4', apiPreference=0, fourcc=cv2.VideoWriter_fourcc(*'MP4V'), fps=15, frameSize=size)
 
         
 
@@ -100,7 +109,7 @@ def VideoProcessing(videoname):
         frame,count = ImageProcessing(frame,count) # detect a face in an image
         #-----------------
 
-        out.write(frame)
+        #out.write(frame)
         cv2.imshow('frame', frame)
      
         #stop its execution by pressing Q-key
@@ -110,12 +119,12 @@ def VideoProcessing(videoname):
         #release memory
     video.release()
     cv2.destroyAllWindows()
-    out.release()
+    #out.release()
     return count
 
 if __name__ == '__main__':
 
-    imgNo = VideoProcessing('sample3') ##detect face,save the image and return the total number of detected face
+    imgNo = VideoProcessing('sample4') ##detect face,save the image and return the total number of detected face
     ##FE(imgNo)
         
     
