@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 
+
 def IP(img):
     address = 'C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python37-32\\Lib\\site-packages\\cv2\\data\\' \
               'haarcascade_frontalface_default.xml'
@@ -46,17 +47,20 @@ def faceDetection(filename):
 from keras.models import Sequential
 from keras.layers import Dense
 
+
 def trainNN(model, train_features, test_features, train_labels, test_labels):
+    print("Training NN...")
     # batch_size and epochs can be experimented to change accuracy
     trained = model.fit(train_features, train_labels, batch_size=256, epochs=20, verbose=1, validation_data=(
         test_features, test_labels))
+    print("Evaluating NN...")
     [loss, accuracy] = model.evaluate(test_features, test_labels)
 
 
-def buildNN(train_features):
+def buildNN(data):
     units = 10
     classes = 7
-    data = train_features.shape[1]
+    data = data.shape[1]
 
     model = Sequential()
     for i in range(10):
@@ -77,6 +81,7 @@ def buildNN(train_features):
     # model where the prediction input is a probability value between 0 and 1
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    print("Compiled NN")
     return model
 
 
@@ -108,8 +113,63 @@ def featureExtraction_HOG(img):
     return features
 
 
+import os
+from keras.utils import np_utils
+
+
+def processDataset():
+    address = './jaffe/'
+    dirList = os.listdir(address)
+
+    images = []
+
+    for dir in dirList:
+        imgList = os.listdir(address+dir)
+        for img in imgList:
+            imgRead = cv2.imread(address+dir+'/'+img)
+            images += [cv2.resize(imgRead, (240, 240))]
+
+    images = np.asarray(images)
+
+    data = []
+    for i in range(images.shape[0]):
+        data += [featureExtraction_HOG(images[0])]
+    data = np.asarray(data)
+
+    dim = np.prod(data.shape[1:])
+    data = data.reshape(data.shape[0], dim)
+    data = data.astype('float32')
+    data /= 255
+
+    labels = np.array([0 for _ in range(data.shape[0])])
+    labels[30:59] = 1
+    labels[60:92] = 2
+    labels[93:124] = 3
+    labels[125:155] = 4
+    labels[156:187] = 5
+    labels[188:] = 6
+    labels = np_utils.to_categorical(labels)
+
+    seed = np.arange(data.shape[0])
+    np.random.shuffle(seed)
+    data = data[seed]
+    labels = labels[seed]
+
+    n = int(data.shape[0]*0.15)
+    test_features = data[0:n]
+    test_labels = labels[0:n]
+    train_features = data[n:]
+    train_labels = labels[n:]
+
+    model = buildNN(data)
+    trainNN(model, train_features, test_features, train_labels, test_labels)
+    # category = ['ANGRY', 'DISGUST', 'FEAR', 'HAPPY', 'NEUTRAL', 'SAD', 'SURPRISE']
+    return
+
+
 def main():
-    faceDetection('sample2b.mp4')
+    # faceDetection('sample2b.mp4')
+    processDataset()
 
 
 if __name__ == '__main__':
