@@ -4,20 +4,20 @@ import matplotlib.pyplot as plt
 from skimage import feature
 
 def HOG_FE(img):
-    ##gray= cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)#convert it into gray
-    ##hog = cv2.HOGDescriptor()
-    ##kp = hog.compute(gray,None)
+    BGR_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    dim = (width, height) = (240, 240)
+    # resize image so hog does not miss cascading part of the image especially the edges
+    BGR_img = cv2.resize(BGR_img, dsize=dim)
 
-    
     # calculate HOG features
-    kp,newimg = feature.hog(img,
-                           orientations=9,#Number of orientation bins. default is 9
-                           pixels_per_cell=(8, 8),#Size (in pixels) of a cell.
-                           cells_per_block=(1, 1),#Number of cells in each block.
+    kp, new_img = feature.hog(BGR_img,
+                           orientations=9,  # Number of orientation bins. default is 9
+                           pixels_per_cell=(8, 8),  # Size (in pixels) of a cell.
+                           cells_per_block=(2, 2),  # Number of cells in each block.
                            visualize=True,
-                           multichannel=False)#If True, the last image dimension is considered as a color channel, otherwise as spatial.
+                           multichannel=False)  # If True, the last image dimension is considered as a color channel, otherwise as spatial.
 
-    plt.imshow(newimg)
+    plt.imshow(new_img)
     plt.axis('off')
     plt.savefig('HOG_result.jpg')
     plt.show()
