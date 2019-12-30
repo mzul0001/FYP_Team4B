@@ -85,32 +85,28 @@ def buildNN(data):
     return model
 
 
+from skimage import feature
+import matplotlib.pyplot as plt
+
+
 def featureExtraction_HOG(img):
     BGR_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     dim = (width, height) = (240, 240)
     # resize image so hog does not miss cascading part of the image especially the edges
     BGR_img = cv2.resize(BGR_img, dsize=dim)
 
-    # Sobel: discrete differentiation operator
-    # edges of an image is detected by obtaining the first derivative
-    # horizontal edge
-    # hy = cv2.Sobel(img, cv2.CV_32F, 0, 1)
-    # vertical edge
-    # hx = cv2.Sobel(img, cv2.CV_32F, 1, 0)
+    # calculate HOG features
+    kp, new_img = feature.hog(BGR_img,
+                              orientations=9,  # Number of orientation bins. default is 9
+                              pixels_per_cell=(8, 8),  # Size (in pixels) of a cell.
+                              cells_per_block=(2, 2),  # Number of cells in each block.
+                              visualize=True,
+                              multichannel=False)  # If True, the last image dimension is considered as a color channel, otherwise as spatial.
 
-    # obtain second derivative
-    # magnitude, direction = cv2.cartToPolar(hx, hy, angleInDegrees=True)
-
-    # non-default HOG values
-    winSize = (BGR_img.shape[0], BGR_img[1])
-    cellSize = (8, 8)
-    blockSize = (cellSize[0] + cellSize[0], cellSize[1] + cellSize[1])
-    blockStride = (cellSize[0], cellSize[1])
-    nbins = 9
-
-    hog = cv2.HOGDescriptor(winSize, blockSize, blockStride, cellSize, nbins, 1, -1, 0, 0.2, 1, 64)
-    features = hog.compute(BGR_img)
-    return features
+    plt.imshow(new_img)
+    plt.axis('off')
+    plt.show()
+    return kp
 
 
 import os
