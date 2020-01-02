@@ -2,46 +2,69 @@ import cv2
 import numpy as np
 
 
-def IP(img):
-    address = 'C:\\Users\\User\\AppData\\Local\\Programs\\Python\\Python37-32\\Lib\\site-packages\\cv2\\data\\' \
-              'haarcascade_frontalface_default.xml'
-    cascade = cv2.CascadeClassifier(address)
+def IP(img, count):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # Histogram Equalization
+    gray = cv2.equalizeHist(gray)
 
-    # convert RGB image to BGR
-    BGR_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faces = cascade.detectMultiScale(BGR_img, 1.3, 6)
+    # Image Sharpening with Gaussian Blur
+    gaussian = cv2.GaussianBlur(gray, (9, 9), 10.0)
+    gray = cv2.addWeighted(gray, 1.5, gaussian, -0.5, 0, gray)
 
+    faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    color = (0, 0, 255)
+
+    # scale factor -- how much a given image is shrunk to be processed
+    # minNeighbours -- If the value is bigger, it detects less objects but less misdetections. If smaller,
+    # it detects more objects but more misdetections.
+    # faces = faceCascade.detectMultiScale(image = gray, scaleFactor = 1.25,minNeighbors= 2)
+    faces = faceCascade.detectMultiScale(image=gray, scaleFactor=1.3, minNeighbors=6)
+
+    # draw a rectangle for each face
     for (x, y, width, height) in faces:
-        # crop image
-        croppedFace = img[y:y + height, x:x + width]
-        train_features = featureExtraction_HOG(croppedFace).flatten()
-        color = (0, 0, 255)
-        # draw rectangle around the face on the image
+        # image, left up coordinate, right down coordinate, color, thickness
         img = cv2.rectangle(img, (x, y), (x + width, y + height), color, 2)
-    return img
+        # crop image
+        saved = img[y:y + height, x:x + width]
+        count += 1
+
+    return img, count
 
 
 def faceDetection(filename):
+    # read a video file
     video = cv2.VideoCapture(filename)
+    count = 0  # count is the number of images detected and saved
+
     while video.isOpened():
+        # read a frame from video
         ret, frame = video.read()
-        # if there's no frame, return value (ret) is false
-        if not ret: return False
 
-        frame = frame.transpose(0, 1, 2)
-        # resize the frame to reduce computation
-        # frame = cv2.resize(frame, dsize=None, fx=0.7, fy=0.7)
-        # process frame
-        frame = IP(frame)
+        if count == 0:
+            height, width, layers = frame.shape
+            size = (width,
+                    height)
+            # out = cv2.VideoWriter(filename='output.mp4', apiPreference=0, fourcc=cv2.VideoWriter_fourcc(*'mp4v'),
+            # fps=15, frameSize=size)
 
-        cv2.imshow('output', frame)
+        # if there is no next frame, the loop terminates
+        if not ret: break
 
+        cv2.waitKey(1)
+        frame, count = IP(frame, count)  # detect a face in an image
+
+        # out.write(frame)
+        cv2.imshow('frame', frame)
+
+        # stop its execution by pressing Q-key
         key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'): return False
+        if key == ord('q'): break
 
+    # release memory
     video.release()
     cv2.destroyAllWindows()
-    return True
+    # out.release()
+    return count
 
 
 from keras.models import Sequential
@@ -85,28 +108,22 @@ def buildNN(data):
     return model
 
 
-from skimage import feature
-import matplotlib.pyplot as plt
-
-
 def featureExtraction_HOG(img):
     BGR_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     dim = (width, height) = (240, 240)
     # resize image so hog does not miss cascading part of the image especially the edges
     BGR_img = cv2.resize(BGR_img, dsize=dim)
 
-    # calculate HOG features
-    kp, new_img = feature.hog(BGR_img,
-                              orientations=9,  # Number of orientation bins. default is 9
-                              pixels_per_cell=(8, 8),  # Size (in pixels) of a cell.
-                              cells_per_block=(2, 2),  # Number of cells in each block.
-                              visualize=True,
-                              multichannel=False)  # If True, the last image dimension is considered as a color channel, otherwise as spatial.
+    # non-default HOG values
+    winSize = (240, 240)
+    blockSize = (16, 16)
+    blockStride = (8, 8)
+    cellSize = (8, 8)
+    nbins = 9
 
-    plt.imshow(new_img)
-    plt.axis('off')
-    plt.show()
-    return kp
+    hog = cv2.HOGDescriptor(winSize, blockSize, blockStride, cellSize, nbins, 1, -1, 0, 0.2, 1, 64)
+    features = hog.compute(BGR_img)
+    return features
 
 
 import os
@@ -164,8 +181,8 @@ def processDataset():
 
 
 def main():
-    # faceDetection('sample2b.mp4')
-    processDataset()
+    faceDetection('sample2a.mp4')
+    # processDataset()
 
 
 if __name__ == '__main__':
