@@ -69,7 +69,22 @@ def faceDetection(filename):
 
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.models import model_from_json
 
+
+def predict(features):
+    # load json and create model
+    with open('model.json', 'r') as json_file:
+        loadedModel = model_from_json(json_file.read())
+
+    # load weights into new model
+    loadedModel.load_weights('model.h5')
+    print("Loaded model")
+
+    loadedModel.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    # predict the class
+    label = loadedModel.predict_classes(features)
+    return label
 
 def trainNN(model, train_features, test_features, train_labels, test_labels):
     print("Training NN...")
@@ -79,6 +94,33 @@ def trainNN(model, train_features, test_features, train_labels, test_labels):
     print("Evaluating NN...")
     [loss, accuracy] = model.evaluate(test_features, test_labels)
 
+    # check for overfitting/underfitting
+    # plot loss curves
+    # plt.plot(trained.history['loss'], 'r')
+    # plt.plot(trained.history['val_loss'], 'b')
+    # plt.legend(['Training loss', 'Test loss'])
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Loss')
+    # plt.title('Loss Curve')
+    # # plt.show()
+    # print(trained.history.keys())
+    # # plot accuracy curves
+    # plt.plot(trained.history['accuracy'], 'r')
+    # plt.plot(trained.history['val_accuracy'], 'b')
+    # plt.legend(['Training accuracy', 'Test Accuracy'])
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Accuracy')
+    # plt.title('Accuracy Curve')
+    # plt.show()
+
+    # serialize model to JSON
+    model_json = model.to_json()
+    with open('model.json', 'w') as json_file:
+        json_file.write(model_json)
+
+    # serialize weights to HDF5
+    model.save_weights('model.h5')
+    print("Saved model")
 
 def buildNN(data):
     units = 10
