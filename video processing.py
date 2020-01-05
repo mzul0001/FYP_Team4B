@@ -38,7 +38,7 @@ def ImageProcessing(img, imgName, faceNo):
     #               it detects more objects but more misdetections.
     # For each resulting detection, `levelWeights` will then contain the certainty of classification at the final stage.
     faces, _, levelWeights = cascade.detectMultiScale3(image=gray, scaleFactor=1.3, minNeighbors=6,
-                                                                  outputRejectLevels=True)
+                                                       outputRejectLevels=True)
 
     # draw a rectangle for each face
     for (x, y, width, height) in faces:
@@ -51,24 +51,6 @@ def ImageProcessing(img, imgName, faceNo):
         # save the image into the outputs file
         cv2.imwrite("./outputs/" + imgName, cropped)
         faceNo += 1
-
-    ##        #----------------eyes detection on a face-------------------
-    ##        Eyes = EyeCascade.detectMultiScale(image = img,minNeighbors=30)
-    ##        for (x,y,width,height) in Eyes:
-    ##        ##image, left up coordinate, right down coordinate, color, thickness
-    ##            img = cv2.rectangle(img,(x,y),(x+width,y+height),color2,2)
-    ##        #-----------------------------------------------------------
-    ##
-    ##        #----------------Mouth detection on a face------------------
-    ##        Mouths = MouthCascade.detectMultiScale(image = img,scaleFactor = 1.25,minNeighbors= 30)
-    ##        for (x,y,width,height) in Mouths:
-    ##        ##image, left up coordinate, right down coordinate, color, thickness
-    ##            img = cv2.rectangle(img,(x,y),(x+width,y+height),color3,2)
-    ##        #-----------------------------------------------------------
-
-    ##cv2.imwrite('highschool_tested.jpg', img)
-    ##cv2.imshow('img',img)
-
     return img, faceNo
 
 
@@ -85,29 +67,19 @@ def VideoProcessing(videoName):
                              fps=fps, frameSize=(width, height))
 
     while video.isOpened():
-        # read a frame from the video
+        # read a frame from video
         ret, frame = video.read()
 
         # if there is no next frame, the loop terminates
         if not ret: break
-
-        # ----------------- start Image processing----
-
-        ##frame = frame.transpose(1,0,2)[::-1]##rotate img from landscape to portrait
-
-        ##frame = frame.transpose(0, 1, 2)  #[::-1]##rotate img to be correct orientation
-        ##frame = cv2.resize(frame, dsize=None, fx=0.7, fy=0.7)  # resize the img
 
         current_frame = video.get(cv2.CAP_PROP_POS_FRAMES)
         timestamp = current_frame / fps
         imgName = str(timestamp) + '-' + str(current_frame) + '-'
         # detect a face in an image
         frame, count = ImageProcessing(frame, imgName, count)
-
         writer.write(frame)
-        # cv2.imshow('frame', frame)
 
-        # stop its execution by pressing Q-key
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'): break
 
