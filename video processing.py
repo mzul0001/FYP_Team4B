@@ -1,9 +1,11 @@
 import cv2
 import numpy
+
+
 # import moviepy.editor as mp
 
 
-def ImageProcessing(img, count):
+def ImageProcessing(img, imgName, faceNo):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # Histogram Equalization
     gray = cv2.equalizeHist(gray)
@@ -25,27 +27,30 @@ def ImageProcessing(img, count):
     # MouthAddress +='Lib\\site-packages\\cv2\\data\\haarcascade_mcs_mouth.xml'
     # MouthCascade = cv2.CascadeClassifier(MouthAddress)
 
-    faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
     color = (0, 0, 255)
     # color2 = (0, 255, 0)
     # color3 = (0, 0, 0)
 
-    # scale factor -- how much a given image is shrunk to be processed
-    # minNeighbours -- If the value is bigger, it detects less objects but less misdetections. If smaller,
-    # it detects more objects but more misdetections.
-    # faces = faceCascade.detectMultiScale(image = gray, scaleFactor = 1.25,minNeighbors= 2)
-    faces = faceCascade.detectMultiScale(image=gray, scaleFactor=1.3, minNeighbors=6)
+    # scale factor -- how much the image size is reduced at each image scale
+    # minNeighbours -- how many neighbors each candidate rectangle should have to retain it
+    #               -- If the value is bigger, it detects less objects but less misdetections. If smaller,
+    #               it detects more objects but more misdetections.
+    # For each resulting detection, `levelWeights` will then contain the certainty of classification at the final stage.
+    faces, _, levelWeights = cascade.detectMultiScale3(image=gray, scaleFactor=1.3, minNeighbors=6,
+                                                                  outputRejectLevels=True)
 
     # draw a rectangle for each face
     for (x, y, width, height) in faces:
         # image, left up coordinate, right down coordinate, color, thickness
         img = cv2.rectangle(img, (x, y), (x + width, y + height), color, 2)
         # crop image
-        saved = img[y:y + height, x:x + width]
+        cropped = img[y:y + height, x:x + width]
         # name of the image
-        imgname = "face" + str(count) + '.jpg'
+        imgName += str(faceNo) + '.jpg'
         # save the image into the outputs file
-        cv2.imwrite("./outputs/" + imgname, saved)
+        cv2.imwrite("./outputs/" + imgName, cropped)
+        faceNo += 1
 
     ##        #----------------eyes detection on a face-------------------
     ##        Eyes = EyeCascade.detectMultiScale(image = img,minNeighbors=30)
@@ -64,23 +69,24 @@ def ImageProcessing(img, count):
     ##cv2.imwrite('highschool_tested.jpg', img)
     ##cv2.imshow('img',img)
 
-    return img, count
+    return img, faceNo
 
 
-def VideoProcessing(videoname):
+def VideoProcessing(videoName):
     # read a video file
-    video = cv2.VideoCapture(videoname)
-    count = 0  # count is the number of images detected and saved
+    video = cv2.VideoCapture(videoName)
+    # count is the number of images detected and saved
+    count = 0
+    # number of frames per second
+    fps = video.get(cv2.CAP_PROP_FPS)
+    width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    writer = cv2.VideoWriter(filename='test_output.avi', apiPreference=0, fourcc=cv2.VideoWriter_fourcc(*'MJPG'),
+                             fps=fps, frameSize=(width, height))
 
     while video.isOpened():
-        # read a frame from video
+        # read a frame from the video
         ret, frame = video.read()
-
-        if count == 0:
-            height, width, layers = frame.shape
-            size = (width, height)
-            # out = cv2.VideoWriter(filename='output.mp4', apiPreference=0, fourcc=cv2.VideoWriter_fourcc(*'mp4v'),
-            #                       fps=15, frameSize=size)
 
         # if there is no next frame, the loop terminates
         if not ret: break
@@ -92,11 +98,14 @@ def VideoProcessing(videoname):
         ##frame = frame.transpose(0, 1, 2)  #[::-1]##rotate img to be correct orientation
         ##frame = cv2.resize(frame, dsize=None, fx=0.7, fy=0.7)  # resize the img
 
-        cv2.waitKey(1)
-        frame, count = ImageProcessing(frame, count)  # detect a face in an image
+        current_frame = video.get(cv2.CAP_PROP_POS_FRAMES)
+        timestamp = current_frame / fps
+        imgName = str(timestamp) + '-' + str(current_frame) + '-'
+        # detect a face in an image
+        frame, count = ImageProcessing(frame, imgName, count)
 
-        # out.write(frame)
-        cv2.imshow('frame', frame)
+        writer.write(frame)
+        # cv2.imshow('frame', frame)
 
         # stop its execution by pressing Q-key
         key = cv2.waitKey(1) & 0xFF
@@ -104,11 +113,11 @@ def VideoProcessing(videoname):
 
     # release memory
     video.release()
+    writer.release()
     cv2.destroyAllWindows()
-    # out.release()
     return count
 
 
 if __name__ == '__main__':
-    imgNo = VideoProcessing('videoplayback3.mp4')  # detect face, save the image and return the total number of detected
-    
+    # detect face, save the image and return the total number of detected face
+    faceNo = VideoProcessing('sample2a.mp4')
