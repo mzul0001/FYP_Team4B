@@ -16,6 +16,10 @@ from keras.optimizers import Adam
 from keras.models import model_from_json
 import os
 
+from PIL import Image
+
+
+
 
 def PreprocessData(x_train,y_train):
     #feature scalling (normalization) on image data
@@ -174,9 +178,44 @@ def CNN_make(x_train,y_train):
 ##    input("enter something")    
     
 
+def CNN_predict(img,SavedModel):
+##    with open('model.json','r') as json_file:
+##        SavedModel = model_from_json(json_file.read())
+##
+##    SavedModel.load_weights('model.h5')
+##
+##    SavedModel.compile(loss= 'categorical_crossentropy',optimizer ='adam' , metrics=['accuracy'])
 
+    x_test = []
+    
+    temp = img_to_array(img)
+    ##temp = img_to_array( load_img(img,target_size = (28,28),color_mode='grayscale') )
+    x_test.append(temp)
+    x_test = np.array(x_test)
+    x_test = x_test.astype('float32') /255
+    
+    label = SavedModel.predict_classes(x_test)
 
-def CNN_predict(x_test,y_test):
+    
+    item = label
+    if item ==0:
+        return "angry"
+    elif item == 1:
+        return "disgust"
+    elif item == 2:
+        return "fear"
+    elif item == 3:
+        return "happy"
+    elif item == 4:
+        return "sad"
+    elif item == 5:
+        return "surprise"
+    elif item == 6:
+        return "neutral"
+    
+    
+
+def CNN_predict_array(x_test,y_test):
     with open('model.json','r') as json_file:
         SavedModel = model_from_json(json_file.read())
 
@@ -246,42 +285,42 @@ if __name__ == '__main__':
     #CNN_make(x_train,y_train)
 
     #load model and
-    label,Imgs = CNN_predict(x_test,y_test)
-
-
+    #label,Imgs = CNN_predict(x_test,y_test)
     
-    array = []
-    for item in label:
-        if item ==0:
-            array.append("angry")
-        elif item == 1:
-            array.append("disgust")
-        elif item == 2:
-            array.append("fear")
-        elif item == 3:
-            array.append("happy")
-        elif item == 4:
-            array.append("sad")
-        elif item == 5:
-            array.append("surprise")
-        elif item == 6:
-            array.append("neutral")
 
-    plt.figure(figsize=(20,20))
-    for i in range(20):
-        plt.subplot(5,5,i+1)
-        plt.imshow(array_to_img(x_test[i]))
-        plt.axis("off")
-        plt.title(str(Imgs[i]),fontsize=12)
-    plt.tight_layout()
-    plt.show()
-
-
-    file = open('label.txt','w')
-    for i in range(len(array)):
-        ##print(i+1,array[i])
-        file.write(str(array[i])+' '+Imgs[i] +'\n')
-    file.close()
+##    
+##    array = []
+##    for item in label:
+##        if item ==0:
+##            array.append("angry")
+##        elif item == 1:
+##            array.append("disgust")
+##        elif item == 2:
+##            array.append("fear")
+##        elif item == 3:
+##            array.append("happy")
+##        elif item == 4:
+##            array.append("sad")
+##        elif item == 5:
+##            array.append("surprise")
+##        elif item == 6:
+##            array.append("neutral")
+##
+##    plt.figure(figsize=(20,20))
+##    for i in range(20):
+##        plt.subplot(5,5,i+1)
+##        plt.imshow(array_to_img(x_test[i]))
+##        plt.axis("off")
+##        plt.title(str(Imgs[i]),fontsize=12)
+##    plt.tight_layout()
+##    plt.show()
+##
+##
+##    file = open('label.txt','w')
+##    for i in range(len(array)):
+##        ##print(i+1,array[i])
+##        file.write(str(array[i])+' '+Imgs[i] +'\n')
+##    file.close()
 
 
     
