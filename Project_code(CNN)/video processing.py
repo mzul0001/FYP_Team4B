@@ -4,7 +4,7 @@ import moviepy.editor as mp
 from CNN import CNN_predict
 import keras
 from keras.models import model_from_json
-def ImageProcessing(img,FaceNo,model):
+def ImageProcessing(img,model):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     # Histogram Equalization
@@ -61,8 +61,9 @@ def VideoProcessing(videoname):
     Video_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     Video_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps= video.get(cv2.CAP_PROP_FPS)##the number of frames per sec
-    ##fourcc is MJPG,DIVX or XVID 
-    writer = cv2.VideoWriter("Tagged_video.avi", cv2.VideoWriter_fourcc(*"MJPG"), fps, (Video_width, Video_height))
+    ##fourcc is MJPG,DIVX or XVID
+    writer = cv2.VideoWriter("Tagged_video.mp4", cv2.VideoWriter_fourcc(*"MP4V"), fps, (Video_width, Video_height))
+    ##writer = cv2.VideoWriter("Tagged_video.avi", cv2.VideoWriter_fourcc(*"MJPG"), fps, (Video_width, Video_height))
     file = open('label.txt','w')
 
     with open('model.json','r') as json_file:
@@ -70,8 +71,8 @@ def VideoProcessing(videoname):
     SavedModel.load_weights('model.h5')
     SavedModel.compile(loss= 'categorical_crossentropy',optimizer ='adam' , metrics=['accuracy'])
 
-    FaceNo =0
-    
+    ##FaceNo =0
+    previous_emotion = ''
     labels = []
     
     while video.isOpened():
@@ -88,15 +89,18 @@ def VideoProcessing(videoname):
         current_frame = video.get(cv2.CAP_PROP_POS_FRAMES)
         timestamp = current_frame / fps
 
-        #video cropped for only 15 seconds for testing 
-        if timestamp > 8: break
+        #video cropped for only 5 seconds for testing 
+        if timestamp > 5: break
         ##imgname = str(timestamp)+'_' + str(current_frame) +'_'
         
-        frame,labels = ImageProcessing(frame,FaceNo,SavedModel)
+        frame,labels = ImageProcessing(frame,SavedModel)
 
         for emotion in labels:
-            file.write(str(timestamp)+' '+ str(FaceNo) +' ' + str(emotion) +'\n')
-            FaceNo +=1
+            if previous_emotion != emotion:
+                file.write(str(timestamp)+ ' ' + str(emotion) +'\n')
+            previous_emotion = emotion
+                ##file.write(str(timestamp)+' '+ str(FaceNo) +' ' + str(emotion) +'\n')
+            ##FaceNo +=1
         
         writer.write(frame)
         #-----------------
