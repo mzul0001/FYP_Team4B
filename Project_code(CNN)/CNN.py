@@ -1,6 +1,6 @@
 import keras
 import glob
-import tensorflow as tf
+
 import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D
@@ -15,9 +15,9 @@ from keras.optimizers import Adam
 
 ##from keras.optimizers import RMSprop
 from keras.models import model_from_json
-import os
-
-from PIL import Image
+##import os
+##from PIL import Image
+from sklearn.metrics import classification_report
 
 
 
@@ -32,8 +32,8 @@ def PreprocessData(x_train,y_train):
     ##mnist data type is (batch size (or sample),width,height)
     ##keras data type is (batch size,width,height,channel)
     
-    x_train = x_train.reshape((int(x_train.shape[0]),28,28,1)) ##28**28 = 784, 26658/784
-    ##x_test = x_test.reshape((213,28,28,1))
+    x_train = x_train.reshape((int(x_train.shape[0]),48,48,1))
+    
     
 
     ##label is One-hot encoded ---all avlues are 1 or 0 which avoids errors in learning
@@ -54,34 +54,34 @@ def CreateModel():
     model = Sequential()
 
     #first layer
-    model.add(Conv2D(16, (3, 3), activation='relu', padding='same', name='conv1', input_shape=(28,28,1)) )
+    model.add(Conv2D(16, (3, 3), activation='relu', padding='same', name='conv1', input_shape=(48,48,1)) )
     model.add(MaxPooling2D(pool_size=(2,2)) )
     ##model.add(Activation('relu'))
     model.add(Dropout(0.3))
     model.add(BatchNormalization())
 
     #Second, third layer
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='conv2', input_shape=(28,28,1)) )
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='conv3', input_shape=(28,28,1)) )
+    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='conv2', input_shape=(48,48,1)) )
+    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='conv3', input_shape=(48,48,1)) )
     
     model.add(MaxPooling2D(pool_size=(2,2)) )
     model.add(Dropout(0.3))
     model.add(BatchNormalization())
 
     #4th,5th,6th layer
-    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv4', input_shape=(28,28,1)) )
-    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv5', input_shape=(28,28,1)) )
-    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv6', input_shape=(28,28,1)) )
-    model.add(MaxPooling2D(pool_size=(2,2)) )
-    model.add(Dropout(0.3))
-    model.add(BatchNormalization())
+    #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv4', input_shape=(48,48,1)) )
+    #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv5', input_shape=(48,48,1)) )
+    #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv6', input_shape=(48,48,1)) )
+    #model.add(MaxPooling2D(pool_size=(2,2)) )
+    #model.add(Dropout(0.3))
+    #model.add(BatchNormalization())
 
     #7th,8th,9th layer
-    model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv7', input_shape=(28,28,1)) )
-    model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv8', input_shape=(28,28,1)) )
-    model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv9', input_shape=(28,28,1)) )
+    #model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv7', input_shape=(48,48,1)) )
+    #model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv8', input_shape=(48,48,1)) )
+    #model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv9', input_shape=(48,48,1)) )
     ##model.add(MaxPooling2D(pool_size=(2,2)) )
-    model.add(Dropout(0.3))
+    #model.add(Dropout(0.3))
     ##model.add(BatchNormalization())
 
     
@@ -110,7 +110,7 @@ def LoadData(x_temp,y_temp,fileName,label):
     Imgs = glob.glob(fileName+'/*.'+'jpg')
     for img in Imgs:
         ##if count> 5000: break
-        temp = img_to_array( load_img(img,target_size = (28,28),color_mode='grayscale') )
+        temp = img_to_array( load_img(img,target_size = (48,48),color_mode='grayscale') )
         x_temp.append(temp)
         y_temp.append(label)
         #count +=1
@@ -151,7 +151,7 @@ def PrepareData(x_train,y_train,address):
 ##    y_test = np.array(y_test)
     #check data
 
-    size = int(x_train.shape[0]) /(28*28)
+    size = int(x_train.shape[0]) /(48*48)
     ##print(size)
     print('X_train:', x_train.shape, 'y_train:', y_train.shape)
 ##    print('X_test:', x_test.shape, 'y_test:', y_test.shape)
@@ -182,6 +182,10 @@ def PrepareData(x_train,y_train,address):
 def CNN_make(x_train,y_train):
     address = './img_recognition/train/'
     x_train,y_train = PrepareData(x_train,y_train,address)
+    address = './img_recognition/train/'
+    x_test =[]
+    y_test =[]
+    x_test,y_test = PrepareData(x_test,y_test,address)
     
     model = CreateModel()
 
@@ -189,7 +193,24 @@ def CNN_make(x_train,y_train):
     model.compile(loss= 'categorical_crossentropy',optimizer ='adam' , metrics=['accuracy'])
 
     #learning
-    model.fit(x_train,y_train,batch_size= 64,epochs= 30)
+    history =model.fit(x_train,y_train,batch_size= 64,epochs= 30,validation_data=(x_test,y_test))
+    
+    # summarize history for accuracy
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
 
     #save model
     SaveModel(model)
@@ -198,7 +219,7 @@ def CNN_make(x_train,y_train):
     #evaluate
 ##    loss,acc =model.evaluate(x_test,y_test)
 ##    print(acc,loss)
-    input("enter something")    
+    ##input("enter something")    
     
 
 def CNN_predict(img,SavedModel):
@@ -236,68 +257,10 @@ def CNN_predict(img,SavedModel):
     elif item == 6:
         return "neutral"
     
-    
-
-##def CNN_predict_array(x_test,y_test):
-##    with open('model.json','r') as json_file:
-##        SavedModel = model_from_json(json_file.read())
-##
-##    SavedModel.load_weights('model.h5')
-##
-##    SavedModel.compile(loss= 'categorical_crossentropy',optimizer ='adam' , metrics=['accuracy'])
-##
-##    
-##    ##Load only testing data(x_test)
-##    Imgs = sorted(glob.glob('./outputs/*.'+'jpg'), key=os.path.getmtime)
-##    sorted(Imgs, key=os.path.getctime)
-##    for img in Imgs:
-##        ##print(img)
-##        temp = img_to_array( load_img(img,target_size = (28,28),color_mode='grayscale') )
-##        x_test.append(temp)
-##        
-##
-##
-##
-##    x_test = np.array(x_test)
-##    ##y_test = np.array(y_test)
-##
-##    
-##    
-##    x_test = x_test.astype('float32') /255
-##    ##x_test = x_test.reshape((213,28,28,1))
-##    
-##    ##y_test = keras.utils.to_categorical(y_test)
-##    
-##    #predict and obtain the array of corresponding classes
-##    label = SavedModel.predict_classes(x_test)  #testing data 1 to 10 if x_test[1:10,]
-##
-##    array = []
-##    for item in label:
-##        if item ==0:
-##            array.append("angry")
-##        elif item == 1:
-##            array.append("disgust")
-##        elif item == 2:
-##            array.append("fear")
-##        elif item == 3:
-##            array.append("happy")
-##        elif item == 4:
-##            array.append("sad")
-##        elif item == 5:
-##            array.append("surprise")
-##        elif item == 6:
-##            array.append("neutral")
-##
-##    file = open('label.txt','w')
-##    for i in range(len(array)):
-##        ##print(i+1,array[i])
-##        file.write(str(array[i])+' '+Imgs[i] +'\n')
-##    file.close()
-##            
-##    return label, Imgs
+  
 
 
-    
+
 
 def CNN_evaluate(x_train,y_train):
     address = './img_recognition/train/'
@@ -311,11 +274,18 @@ def CNN_evaluate(x_train,y_train):
     SavedModel.load_weights('model.h5')
     SavedModel.compile(loss= 'categorical_crossentropy',optimizer ='adam' , metrics=['accuracy'])
 
-    
+    y_pred = SavedModel.predict(x_test, batch_size=64, verbose=0)
+    y_pred_bool = np.argmax(y_pred, axis=1)
+    y_test_bool = np.argmax(y_test, axis=1)
+    print()
+    print("0:happy 1:disgust 2:fear 3:happy 4:sad 5:surprise 6:neutral")
+    print(classification_report(y_test_bool, y_pred_bool))
     
     score = SavedModel.evaluate(x_test, y_test, batch_size= 64,verbose=0)
     print('Test loss:', score[0])
     print('Test accuracy:', score[1])
+
+   
 
 if __name__ == '__main__':
 
@@ -332,40 +302,6 @@ if __name__ == '__main__':
 
     CNN_evaluate(x_test,y_test)
     
-
-##    
-##    array = []
-##    for item in label:
-##        if item ==0:
-##            array.append("angry")
-##        elif item == 1:
-##            array.append("disgust")
-##        elif item == 2:
-##            array.append("fear")
-##        elif item == 3:
-##            array.append("happy")
-##        elif item == 4:
-##            array.append("sad")
-##        elif item == 5:
-##            array.append("surprise")
-##        elif item == 6:
-##            array.append("neutral")
-##
-##    plt.figure(figsize=(20,20))
-##    for i in range(20):
-##        plt.subplot(5,5,i+1)
-##        plt.imshow(array_to_img(x_test[i]))
-##        plt.axis("off")
-##        plt.title(str(Imgs[i]),fontsize=12)
-##    plt.tight_layout()
-##    plt.show()
-##
-##
-##    file = open('label.txt','w')
-##    for i in range(len(array)):
-##        ##print(i+1,array[i])
-##        file.write(str(array[i])+' '+Imgs[i] +'\n')
-##    file.close()
 
 
     
