@@ -58,15 +58,15 @@ def CreateModel():
     model.add(MaxPooling2D(pool_size=(2,2)) )
     ##model.add(Activation('relu'))
     model.add(Dropout(0.3))
-    model.add(BatchNormalization())
+    ##model.add(BatchNormalization())
 
     #Second, third layer
     model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='conv2', input_shape=(48,48,1)) )
     model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='conv3', input_shape=(48,48,1)) )
     
-    model.add(MaxPooling2D(pool_size=(2,2)) )
-    model.add(Dropout(0.3))
-    model.add(BatchNormalization())
+    ##model.add(MaxPooling2D(pool_size=(2,2)) )
+    #model.add(Dropout(0.3))
+    ##model.add(BatchNormalization())
 
     #4th,5th,6th layer
     #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv4', input_shape=(48,48,1)) )
@@ -295,7 +295,7 @@ if __name__ == '__main__':
     y_test = []
     
     #newly create model
-    ##CNN_make(x_train,y_train)
+    #CNN_make(x_train,y_train)
 
     #load model and
     #label,Imgs = CNN_predict(x_test,y_test)
