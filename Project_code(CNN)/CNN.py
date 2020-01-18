@@ -90,7 +90,7 @@ def CreateModel():
 
     ##prediction layer
     model.add(Flatten())
-    model.add(Dense(64, activation='relu'))
+    model.add(Dense(128, activation='relu'))
     model.add(Dense(7, activation='softmax'))##number of emotions
     return model
 
@@ -109,7 +109,7 @@ def LoadData(x_temp,y_temp,fileName,label):
     ##Imgs = glob.glob('./JAFFE/'+fileName+'/*.'+'tiff')
     Imgs = glob.glob(fileName+'/*.'+'jpg')
     for img in Imgs:
-        ##if count> 5000: break
+        
         temp = img_to_array( load_img(img,target_size = (48,48),color_mode='grayscale') )
         x_temp.append(temp)
         y_temp.append(label)
@@ -300,7 +300,7 @@ if __name__ == '__main__':
     #load model and
     #label,Imgs = CNN_predict(x_test,y_test)
 
-    CNN_evaluate(x_test,y_test)
+    #CNN_evaluate(x_test,y_test)
     
 
 
