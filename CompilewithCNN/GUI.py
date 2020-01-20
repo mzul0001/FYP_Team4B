@@ -17,7 +17,7 @@ def browsebutton():
     #print(filename)
     filename1=updatefile[1]
     print(filename)
-    if str(filename1).endswith('.mp4') or str(filename1).endswith('.avi'):
+    if str(filename1).endswith('.mp4') or str(filename1).endswith('.avi') or str(filename1).endswith('.mkv') or str(filename1).endswith('.flv') :
         loadingwindow1(filename)
     else:
         wrongwindow()
@@ -29,7 +29,7 @@ def loadingwindow1(filename):
     loadingwindow=tk.Tk()
     loadingwindow.geometry("350x150+520+250")
     loadingwindow.title("LoadingWindow")
-    label1=tk.Label(loadingwindow, text="The file is currently being Please be patient! \n Thank you using our application",fg='blue')
+    label1=tk.Label(loadingwindow, text="The file is currently processing. Please be patient! \n Thank you using our application",fg='blue')
     label1.config(font=("Arial", 11))
     label1.place(relx=0.05,rely=0.1)
     progressbar = ttk.Progressbar(loadingwindow, orient=HORIZONTAL, length=200, mode='indeterminate')
@@ -59,15 +59,15 @@ def loginwindow():
     loginwindow.title("Login Page")
 
 
-    detailslabel = tk.Label(loginwindow, text="Welcome to Team4B Emotion Detection Software")
-    detailslabel.config(font=("Times New Roman", 20))
+    detailslabel = tk.Label(loginwindow, text="Welcome to Team4B Emotion Classification Software")
+    detailslabel.config(font=("Times New Roman", 18))
     detailslabel.place(relx=0.05, rely=0.05)
 
     details2label=tk.Label(loginwindow,text="**Please login if you have created a username and password",fg="red")
     details2label.config(font=("Times New Roman", 12))
     details2label.place(relx=0.05, rely=0.20)
 
-    details3label = tk.Label(loginwindow,text="**Please register if you have not register yet ",fg="red")
+    details3label = tk.Label(loginwindow,text="**Please register if you have not yet registered",fg="red")
     details3label.config(font=("Times New Roman", 12))
     details3label.place(relx=0.05, rely=0.30)
 
@@ -130,7 +130,7 @@ def helpwindow1():
 
     textguide= tk.Text(loginhelpwindow, height=8, width=40,fg='blue',wrap=WORD)
     textguide.place(relx=0.05, rely=0.20)
-    textguide.insert(tk.END,"1.Click the register button! \n\n2.Type your desired unique username and password. \n\n3.After registration, close the register window and input the registered username and password to login!")
+    textguide.insert(tk.END,"1.Click the register button. \n\n2.Type your desired unique username and password. \n\n3.After registration, close the register window and input the registered username and password to login!")
     textguide.config(state=tk.DISABLED)
 
     helpplaybutton= tk.Button(loginhelpwindow, text="Play Video", width=20, command=outputvideoplay2)
@@ -290,7 +290,7 @@ def secondWindow():
     textguide = tk.Text(help_window, height=18, width=40, fg='blue', wrap=WORD)
     textguide.place(relx=0.05, rely=0.20)
     textguide.insert(tk.END,
-                     "1.After login, the main menu will pop out. \n\n2.Read through the requirements before uploading a video. \n\n 3.Click on the Upload button and choose the videos that you want to perform emotion detection. \n\n4.Kindly wait for the video to be processed. \n\n 5. After processed, the timestamp of emotions detection are shown and user can see the emotions detected in the video")
+                     "1.After login, the main menu will pop out. \n\n2.Read through the requirements before uploading a video. \n\n 3.Click on the Upload button and choose the videos that you want. \n\n4.Kindly wait for the video to be processed. \n\n 5. After processed, the timestamp of emotions detection are shown and the video will be annotated.")
     textguide.config(state=tk.DISABLED)
     closeButton = tk.Button(help_window, text="Close", width=10, command=help_window.destroy)
     closeButton.place(relx=0.6, rely=0.85)
@@ -437,12 +437,12 @@ def firstwindow():
     bg = mainwindow.cget("background")
     text2=tk.Text(mainwindow,height=10,width=37,bg=bg,fg='blue',wrap=WORD)
     text2.place(relx=0.05,rely=0.14)
-    text2.insert(tk.END,"Overview \nWe are Team4B and we are currently working on a project which is determining macro emotions of a person. We are 4 young, inspired and talented youth that is keen on obtaining emotions of a person and hoping our software will provide accurate emotions of an individual!")
+    text2.insert(tk.END,"Overview \nWe are Team4B, a group of 4 final year students in Monash University Malaysiavcurrently working on a project to detect macro emotions of a subject in a video.")
     text2.config(state=tk.DISABLED)
 
 
     text1=tk.Text(mainwindow,height=20,width=42,wrap=WORD,fg='red')
-    text1.insert(tk.END,"Requirement for Emotion Detection \n 1. Subject of analysis shouldnt be more than 2 meters away from the camera \n \n 2. Can process up to 30 minutes of video \n \n 3. Video should be recorded in good lighting \n \n 4. Video should be recorded in decent quality \n \n 5. Only one subject should be present in the video \n\n 6. Must have an existing video media player")
+    text1.insert(tk.END,"Requirement for Emotion Detection \n 1. Subject of analysis shouldn't be more than 2 meters away from the camera \n \n 2. Can process up to 30 minutes of video \n \n 3. Video should be recorded in good lighting \n \n 4. Video should be recorded in decent quality \n \n 5. Only one subject should be present in the video \n\n 6. Local machine must have an existing video media player")
     text1.config(state=tk.DISABLED)
     text1.config(font=("Arial",10))
     text1.place(relx=0.05,rely=0.4)
