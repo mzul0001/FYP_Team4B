@@ -1,99 +1,80 @@
-import keras
+##import keras
 import glob
-import tensorflow as tf
+
 import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D
 import numpy as np
 from keras.preprocessing.image import array_to_img, img_to_array,load_img
 
-##from keras.layers.core import Dense, Dropout, Activation
 from keras.layers import Flatten,Dense, Dropout,Activation
 from keras.optimizers import Adam
-##from keras.callbacks import EarlyStopping
 
-##from keras.optimizers import RMSprop
 from keras.models import model_from_json
-import os
-
-from PIL import Image
+from sklearn.metrics import classification_report
 
 
+def LoadData(x_temp,y_temp,fileName,label):
+    '''
+        Functionality of the function
+        This function is to load dataset from a folder into arrays
 
+        Error handle: there is no error handle
+        Return: no returns
+        Parameter x_temp: array which is going to contain array of image data, 2-dimentional array
+        Parameter y_temp: array which is going to contain labels
+
+    '''
+    Imgs = glob.glob(fileName+'/*.'+'jpg')
+    for img in Imgs:
+        
+        temp = img_to_array( load_img(img,target_size = (48,48),color_mode='grayscale') )
+        x_temp.append(temp)
+        y_temp.append(label)
 
 def PreprocessData(x_train,y_train):
+    '''
+        Functionality of the function
+        This function is to reshape,normalize and One-hot encode the input data so that keras can process them without errors.
+
+        Error handle: there is no error handle
+        Return: it returns processed data
+        Parameter x_train: array of facial image data
+        Parameter y_train: array of labels of emotions
+
+    '''
     #feature scalling (normalization) on image data
-    
+    #gray sclale is 1 channel so its range is between 0 and 255
     ##min 0 max 1, RGB is 0 to 255, thus it devides by 255
     x_train = x_train.astype('float32') /255
-    ##x_test = x_test.astype('float32') /255
     
-    ##mnist data type is (batch size (or sample),width,height)
     ##keras data type is (batch size,width,height,channel)
     
-    x_train = x_train.reshape((int(x_train.shape[0]),28,28,1)) ##28**28 = 784, 26658/784
-    ##x_test = x_test.reshape((213,28,28,1))
+    x_train = x_train.reshape((int(x_train.shape[0]),48,48,1))
+    
     
 
     ##label is One-hot encoded ---all avlues are 1 or 0 which avoids errors in learning
     y_train = keras.utils.to_categorical(y_train)  
-    ##y_test = keras.utils.to_categorical(y_test)
+    
 
     return x_train,y_train
 
 
+        
 
+def PrepareData(x_train,y_train,address):
+    '''
+        Functionality of the function
+        This function is to prepare data by calling loadData and PreprocessData functions
 
+        Error handle: there is no error handle
+        Return: it returns dataset which keras can already process
+        Parameter x_train: array which is going to contain array of image data, 2-dimentional array
+        Parameter y_train: array which is going to contain labels
+        Parameter address: address of dataset in laptop
 
-def CreateModel():
-    
-    #construct model
-    ##conv2D(filter--number of outputs,kernel_size (n*n) padding same--output size is same with original input size,
-    ##input data type)
-    model = Sequential()
-
-    #first layer
-    model.add(Conv2D(16, (3, 3), activation='relu', padding='same', name='conv1', input_shape=(28,28,1)) )
-    model.add(MaxPooling2D(pool_size=(2,2)) )
-    ##model.add(Activation('relu'))
-    ##model.add(Dropout(0.3))
-
-    #Second layer
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='conv2', input_shape=(28,28,1)) )
-    model.add(MaxPooling2D(pool_size=(2,2)) )
-
-    #Third layer
-    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv3', input_shape=(28,28,1)) )
-    ##model.add(MaxPooling2D(pool_size=(2,2)) )
-    
-    model.summary()
-
-    ##prediction layer
-    model.add(Flatten())
-    model.add(Dense(64, activation='relu'))
-    model.add(Dense(7, activation='softmax'))##number of emotions
-    return model
-
-def SaveModel(model):
-    model_json = model.to_json()
-    with open('model.json','w') as json_file:
-        json_file.write(model_json)
-
-    model.save_weights('model.h5')
-    print("Saved model")
-
-def LoadData(x_temp,y_temp,fileName,label):
-    count = 0
-    ##Imgs = glob.glob('./JAFFE/'+fileName+'/*.'+'tiff')
-    Imgs = glob.glob(fileName+'/*.'+'jpg')
-    for img in Imgs:
-        if count> 5000: break
-        temp = img_to_array( load_img(img,target_size = (28,28),color_mode='grayscale') )
-        x_temp.append(temp)
-        y_temp.append(label)
-        count +=1
-
-def PrepareData(x_train,y_train):
+    '''
     #------load data x is image, y is label (ex 1,5,3...)  -------------------
     ##(x_train, y_train), (x_test, y_test) = mnist.load_data()
     ##0 angry,
@@ -104,7 +85,7 @@ def PrepareData(x_train,y_train):
     ##5 surprise,
     ##6 neutral    
 
-    address = './img_recognition/train/'
+    
     
     LoadData(x_train,y_train,address +'angry',0)
     LoadData(x_train,y_train,address +'disgust',1)
@@ -114,36 +95,15 @@ def PrepareData(x_train,y_train):
     LoadData(x_train,y_train,address +'surprise',5)
     LoadData(x_train,y_train,address +'neutral',6)
 
-##    address = './img_recognition/validation/'+fileName
-##    LoadData(x_test,y_test,address +'angry',0)
-##    LoadData(x_test,y_test,address +'disgust',1)
-##    LoadData(x_test,y_test,address +'fear',2)
-##    LoadData(x_test,y_test,address +'happy',3)
-##    LoadData(x_test,y_test,address +'sad',4)
-##    LoadData(x_test,y_test,address +'surprise',5)
-##    LoadData(x_test,y_test,address +'neutral',6)
-    
+
+    #convert it to numpy array
     x_train = np.array(x_train)
     y_train = np.array(y_train)
-##    x_test = np.array(x_test)
-##    y_test = np.array(y_test)
-    #check data
 
-    size = int(x_train.shape[0]) /(28*28)
-    print(size)
-    print('X_train:', x_train.shape, 'y_train:', y_train.shape)
-##    print('X_test:', x_test.shape, 'y_test:', y_test.shape)
+    size = int(x_train.shape[0]) /(48*48)
+    
+    ##print('X_train:', x_train.shape, 'y_train:', y_train.shape)
 
-    #display data 
-##    plt.figure(figsize=(20,20))
-##    for i in range(50):
-##        plt.subplot(8,8,i+1)
-##        plt.imshow(x_train[i].astype('uint8'))
-##        plt.axis("off")
-##        plt.title(str(y_train[i]),fontsize=14)
-##        
-##    plt.tight_layout()
-##    plt.show()
     #---------finished loading dataset-----------------------------------------
 
     #preprocess dataset so that keras can process them
@@ -152,44 +112,165 @@ def PrepareData(x_train,y_train):
 
 
 
+def CreateModel():
+    '''
+        Functionality of the function
+        This function is to create a structure of CNN model
+        3 inputs layers, which outputs 16 or 32 feature maps which is created by sliding kernel from top left to bottom right
+
+        Maxpooling reduce the size of feature map taking max values of each region with 2*2 filters of stride 2.
+        It is to downsample the input img and reduce computational costs, which prevents over-fitting
+        by extracting abstract form of features by only taking some parameters.
+
+        Dropout layer is set some parameters zero randomely based on given percentage so that it reduce bias made from training dataset.
+        
+        Flatten layer converts the output of the convolutional layers to vector of one dimentional array which size is 64.
+
+        Dense layer(Output layer) outputs probabilities for each class using softmax function that guarantees output between 0 and 1.
+
+        Error handle: there is no error handle
+        Return: it returns CNN model
+
+    '''
+    
+    #construct model
+    ##conv2D(filter--number of convolution filters,kernel_size (n*n), padding same--output size is same with original input size,
+    ##input data type)
+    model = Sequential()
+
+    #first layer
+    model.add(Conv2D(16, (4, 4), activation='relu', padding='same', name='conv1', input_shape=(48,48,1)) )
+    model.add(MaxPooling2D(pool_size=(2,2)) )
+    
+    model.add(Dropout(0.3))
+    ##model.add(BatchNormalization())
+
+    #Second, third layer
+    model.add(Conv2D(32, (4, 4), activation='relu', padding='same', name='conv2', input_shape=(48,48,1)) )
+    model.add(Conv2D(32, (4, 4), activation='relu', padding='same', name='conv3', input_shape=(48,48,1)) )
+    
+    ##model.add(MaxPooling2D(pool_size=(2,2)) )
+    #model.add(Dropout(0.3))
+    ##model.add(BatchNormalization())
+
+    #4th,5th,6th layer
+    #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv4', input_shape=(48,48,1)) )
+    #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv5', input_shape=(48,48,1)) )
+    #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv6', input_shape=(48,48,1)) )
+    #model.add(MaxPooling2D(pool_size=(2,2)) )
+    #model.add(Dropout(0.3))
+    #model.add(BatchNormalization())
+
+    #7th,8th,9th layer
+    #model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv7', input_shape=(48,48,1)) )
+    #model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv8', input_shape=(48,48,1)) )
+    #model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv9', input_shape=(48,48,1)) )
+    ##model.add(MaxPooling2D(pool_size=(2,2)) )
+    #model.add(Dropout(0.3))
+    ##model.add(BatchNormalization())
+
+    
+    
+    model.summary()
+
+    ##prediction layer
+    model.add(Flatten())
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(7, activation='softmax'))##number of emotions
+    return model
 
 
+
+def SaveModel(model):
+    '''
+        Functionality of the function
+        This function is to save a model and its weight as jason file and h5 file
+
+        Error handle: there is no error handle
+        Return: no returns
+        Parameter model: compiled and studied model 
+
+    '''
+    model_json = model.to_json()
+    with open('model.json','w') as json_file:
+        json_file.write(model_json)
+
+    model.save_weights('model.h5')
+    print("Saved model")
 
 
 
 def CNN_make(x_train,y_train):
-    x_train,y_train = PrepareData(x_train,y_train)
+    '''
+        Functionality of the function
+        This function is to build a model and let the model study based on the given dataset and save it at the end.
+
+        Error handle: there is no error handle
+        Return: no returns
+        Parameter x_train: array which is going to contain array of image data, 2-dimentional array
+        Parameter y_train: array which is going to contain labels
+
+    '''
+    address = './img_recognition/train/'
+    x_train,y_train = PrepareData(x_train,y_train,address)
+    address = './img_recognition/train/'
+    x_test =[]
+    y_test =[]
+    x_test,y_test = PrepareData(x_test,y_test,address)
     
     model = CreateModel()
 
-    #compile
+    #compile  categorical_crossentropy is used when label is one-hot encoded and it is N-classes classification
+    #adam 
     model.compile(loss= 'categorical_crossentropy',optimizer ='adam' , metrics=['accuracy'])
 
     #learning
-    model.fit(x_train,y_train,batch_size= 64,epochs= 30)
+    #batch size is the number of samples that will be passed to neural network per iteration until all samples are propagated.
+    #less batch size uses less memory.
+
+    #epoch is how many times you go through all samples. every epoch it tries shuffled samples
+    history =model.fit(x_train,y_train,batch_size= 64,epochs= 30,validation_data=(x_test,y_test))
+    
+    # summarize history for accuracy
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
 
     #save model
     SaveModel(model)
 
 
-    #evaluate
-##    loss,acc =model.evaluate(x_test,y_test)
-##    print(acc,loss)
-##    input("enter something")    
+   
     
 
 def CNN_predict(img,SavedModel):
-##    with open('model.json','r') as json_file:
-##        SavedModel = model_from_json(json_file.read())
-##
-##    SavedModel.load_weights('model.h5')
-##
-##    SavedModel.compile(loss= 'categorical_crossentropy',optimizer ='adam' , metrics=['accuracy'])
+    '''
+        Functionality of the function
+        This function is to predict corresponding class(or emotion) to an input of image
+
+        Error handle: there is no error handle
+        Return: it returns string of predicted emotion 
+        Parameter img: facial image
+        Parameter SavedModel: trained model to predict a class.
+
+    '''
 
     x_test = []
     
     temp = img_to_array(img)
-    ##temp = img_to_array( load_img(img,target_size = (28,28),color_mode='grayscale') )
+
     x_test.append(temp)
     x_test = np.array(x_test)
     x_test = x_test.astype('float32') /255
@@ -213,66 +294,45 @@ def CNN_predict(img,SavedModel):
     elif item == 6:
         return "neutral"
     
-    
+  
 
-def CNN_predict_array(x_test,y_test):
+
+
+
+def CNN_evaluate(x_train,y_train):
+    '''
+        Functionality of the function
+        This function is to evaluate model.It gives precision,recall,f1 score, support, accuracy and loss.
+
+        Error handle: there is no error handle
+        Return: no returns
+        Parameter x_train: facial images which will be used as testing data
+        Parameter y_train: labels of emotions which will be used as testing data
+
+    '''
+    address = './img_recognition/train/'
+    x_test = []
+    y_test = []
+    x_test,y_test = PrepareData(x_train,y_train,address)
+
+
     with open('model.json','r') as json_file:
         SavedModel = model_from_json(json_file.read())
-
     SavedModel.load_weights('model.h5')
-
     SavedModel.compile(loss= 'categorical_crossentropy',optimizer ='adam' , metrics=['accuracy'])
 
+    y_pred = SavedModel.predict(x_test, batch_size=64, verbose=0)
+    y_pred_bool = np.argmax(y_pred, axis=1)
+    y_test_bool = np.argmax(y_test, axis=1)
+    print()
+    print("0:angry 1:disgust 2:fear 3:happy 4:sad 5:surprise 6:neutral")
+    print(classification_report(y_test_bool, y_pred_bool))
     
-    ##Load only testing data(x_test)
-    Imgs = sorted(glob.glob('./outputs/*.'+'jpg'), key=os.path.getmtime)
-    sorted(Imgs, key=os.path.getctime)
-    for img in Imgs:
-        ##print(img)
-        temp = img_to_array( load_img(img,target_size = (28,28),color_mode='grayscale') )
-        x_test.append(temp)
-        
+    score = SavedModel.evaluate(x_test, y_test, batch_size= 64,verbose=0)
+    print('Test loss:', score[0])
+    print('Test accuracy:', score[1])
 
-
-
-    x_test = np.array(x_test)
-    ##y_test = np.array(y_test)
-
-    
-    
-    x_test = x_test.astype('float32') /255
-    ##x_test = x_test.reshape((213,28,28,1))
-    
-    ##y_test = keras.utils.to_categorical(y_test)
-    
-    #predict and obtain the array of corresponding classes
-    label = SavedModel.predict_classes(x_test)  #testing data 1 to 10 if x_test[1:10,]
-
-    array = []
-    for item in label:
-        if item ==0:
-            array.append("angry")
-        elif item == 1:
-            array.append("disgust")
-        elif item == 2:
-            array.append("fear")
-        elif item == 3:
-            array.append("happy")
-        elif item == 4:
-            array.append("sad")
-        elif item == 5:
-            array.append("surprise")
-        elif item == 6:
-            array.append("neutral")
-
-    file = open('label.txt','w')
-    for i in range(len(array)):
-        ##print(i+1,array[i])
-        file.write(str(array[i])+' '+Imgs[i] +'\n')
-    file.close()
-            
-    return label, Imgs
-    
+   
 
 if __name__ == '__main__':
 
@@ -282,45 +342,13 @@ if __name__ == '__main__':
     y_test = []
     
     #newly create model
-    #CNN_make(x_train,y_train)
+    CNN_make(x_train,y_train)
 
     #load model and
-    #label,Imgs = CNN_predict(x_test,y_test)
     
 
-##    
-##    array = []
-##    for item in label:
-##        if item ==0:
-##            array.append("angry")
-##        elif item == 1:
-##            array.append("disgust")
-##        elif item == 2:
-##            array.append("fear")
-##        elif item == 3:
-##            array.append("happy")
-##        elif item == 4:
-##            array.append("sad")
-##        elif item == 5:
-##            array.append("surprise")
-##        elif item == 6:
-##            array.append("neutral")
-##
-##    plt.figure(figsize=(20,20))
-##    for i in range(20):
-##        plt.subplot(5,5,i+1)
-##        plt.imshow(array_to_img(x_test[i]))
-##        plt.axis("off")
-##        plt.title(str(Imgs[i]),fontsize=12)
-##    plt.tight_layout()
-##    plt.show()
-##
-##
-##    file = open('label.txt','w')
-##    for i in range(len(array)):
-##        ##print(i+1,array[i])
-##        file.write(str(array[i])+' '+Imgs[i] +'\n')
-##    file.close()
+    CNN_evaluate(x_test,y_test)
+    
 
 
     
