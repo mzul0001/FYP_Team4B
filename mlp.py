@@ -122,8 +122,9 @@ def buildNN(data, units=832, classes=7):
 
     # hidden layers
     for i in range(2):
+        # units -- the number of neurons in the hidden layer
         # activation -- the function used by the neurons for calculation
-        model.add(Dense(832, activation='relu'))
+        model.add(Dense(units, activation='relu'))
         model.add(Dropout(0.5))
 
     # output layer
