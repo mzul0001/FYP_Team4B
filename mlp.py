@@ -21,11 +21,11 @@ def predict(features):
     '''
     print("Loading model...")
     # load json and create model
-    with open('model.json', 'r') as json_file:
+    with open('mlp_model.json', 'r') as json_file:
         loaded_model = model_from_json(json_file.read())
 
     # load weights into new model
-    loaded_model.load_weights('model.h5')
+    loaded_model.load_weights('mlp_model.h5')
 
     # Adam (Adaptive Moment Estimation) -- an algorithm for first-order gradient-based optimization of stochastic
     #                                      objective functions, based on adaptive estimates of lower-order moments
