@@ -1,6 +1,8 @@
 import cv2
 from CNN import CNN_predict
-from keras.models import model_from_json
+from mlp import predict
+from extractFeatures import extractFeatures
+from tensorflow.keras.models import model_from_json
 
 
 def processImage(img, model):
@@ -45,6 +47,8 @@ def processImage(img, model):
 
         # predict the emotion the face displayed
         label = CNN_predict(cropped_face, model)
+        # mlp runtime test
+        # label = predict(extractFeatures(cropped_face))
         labels.append(label)
 
         # annotate the image with the emotion the face displayed
