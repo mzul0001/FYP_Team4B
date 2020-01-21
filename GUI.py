@@ -152,7 +152,7 @@ def loginwindow():
 
     #inserting the logo in the window
 
-    load = Image.open('./guiItems/4b.png')
+    load = Image.open('4b.png')
     load = load.resize((150, 150), Image.ANTIALIAS)
     render = ImageTk.PhotoImage(load)
     image = Label(image=render)
@@ -233,7 +233,7 @@ def verifylogin():
     #delete the entry text once user input
     password_entry.delete(0, tk.END)
     username_entry.delete(0, tk.END)
-    registermember = "./guiItems/users.txt"
+    registermember = "users.txt"
     #now all username and password is store in the file
     file = open(registermember, 'r')
     filecontent = file.read().splitlines()
@@ -357,7 +357,7 @@ def registered_user():
     '''
     username_info = username.get()
     password_info = password.get()
-    registermember = "./guiItems/users.txt"
+    registermember = "users.txt"
     file = open(registermember, 'r')
     filecontent = file.read().splitlines()
     flag = False
@@ -608,7 +608,7 @@ def firstwindow():
     button2 = tk.Button(mainwindow, text="Help", width=20, command=secondWindow)
     button2.place(relx=0.65, rely=0.8)
 
-    load = Image.open('./guiItems/logo.png')
+    load = Image.open('logo.png')
     render = ImageTk.PhotoImage(load)
     image = Label(image=render)
     image.image = render
