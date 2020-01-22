@@ -410,7 +410,7 @@ def wrongwindow():
     :return:window showing a valid file must be selected
     '''
     wrongwindow = tk.Tk()
-    wrongwindow.geometry("200x100+650+400")
+    wrongwindow.geometry("250x100+650+400")
     wrongwindow.title("Error")
     label = tk.Label(wrongwindow, text="Error : Please input a mp4/avi/mkv/flv file", fg='red')
     label.config(font=("Arial", 10))
@@ -548,21 +548,21 @@ def thirdWindow():
     neutraltext.place(relx=0.05, rely=0.805)
 
     # input the time stamp of the video
-    for i in range(2, len(filecontent), 3):
-        if str(filecontent[i]) == "angry":
-            angertext.insert(tk.END, filecontent[i - 2] + '\n')
-        elif str(filecontent[i]) == "disgust":
-            disgusttext.insert(tk.END, filecontent[i - 2] + '\n')
-        elif str(filecontent[i]) == "fear":
-            feartext.insert(tk.END, filecontent[i - 2] + '\n')
-        elif str(filecontent[i]) == "happy":
-            happinesstext.insert(tk.END, filecontent[i - 2] + '\n')
-        elif str(filecontent[i]) == "sad":
-            sadnesstext.insert(tk.END, filecontent[i - 2] + '\n')
-        elif str(filecontent[i]) == "surprise":
-            surprisetext.insert(tk.END, filecontent[i - 2] + '\n')
-        elif str(filecontent[i]) == "neutral":
-            neutraltext.insert(tk.END, filecontent[i - 2] + '\n')
+    for i in range(5,len(filecontent),6):
+        if str(filecontent[i])=="angry":
+            angertext.insert(tk.END,filecontent[i-5]+" "+ filecontent[i-4]+" "+filecontent[i-3]+" "+filecontent[i-2]+ '\n')
+        elif str(filecontent[i])=="disgust":
+            disgusttext.insert(tk.END,filecontent[i-5]+" "+ filecontent[i-4]+" "+filecontent[i-3]+" "+filecontent[i-2]+'\n')
+        elif str(filecontent[i])=="fear":
+            feartext.insert(tk.END,filecontent[i-5]+" "+ filecontent[i-4]+" "+filecontent[i-3]+" "+filecontent[i-2]+'\n')
+        elif str(filecontent[i])=="happy":
+            happinesstext.insert(tk.END,filecontent[i-5]+" "+ filecontent[i-4]+" "+filecontent[i-3]+" "+filecontent[i-2]+ '\n')
+        elif str(filecontent[i])=="sad":
+            sadnesstext.insert(tk.END,filecontent[i-5]+" "+ filecontent[i-4]+" "+filecontent[i-3]+" "+filecontent[i-2] + '\n')
+        elif str(filecontent[i])=="surprise":
+            surprisetext.insert(tk.END,filecontent[i-5]+" "+ filecontent[i-4]+" "+filecontent[i-3]+" "+filecontent[i-2] + '\n')
+        elif str(filecontent[i])=="neutral":
+            neutraltext.insert(tk.END,filecontent[i-5]+" "+ filecontent[i-4]+" "+filecontent[i-3]+" "+filecontent[i-2] + '\n')
 
     angertext.config(state=tk.DISABLED)
     sadnesstext.config(state=tk.DISABLED)
