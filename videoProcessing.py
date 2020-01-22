@@ -106,7 +106,9 @@ def processVideo(videoname):
         # obtain the current frame
         current_frame = video.get(cv2.CAP_PROP_POS_FRAMES)
         # calculate timestamp
-        timestamp = current_frame / fps
+        timestamp = current_frame/fps
+        minute = timestamp//60
+        second = round(timestamp%60, 2)
 
         # # video cropped for only 3 seconds for testing
         # if timestamp >= 3: break
@@ -114,7 +116,8 @@ def processVideo(videoname):
         frame, labels = processImage(frame, loaded_model)
         # write the timestamp and the classified emotions of the processed frame to a txt file
         for emotion in labels:
-            file.write(str(timestamp) + ' ' + str(face_id) + ' ' + str(emotion) + '\n')
+            file.write(str(minute) + 'minute' + ' ' + str(second) + 'second' + ' ' + str(face_id) + ' ' + str(
+                emotion) + '\n')
             face_id += 1
         # combine the processed frame to an mp4 file
         writer.write(frame)
