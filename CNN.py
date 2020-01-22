@@ -7,11 +7,12 @@ from keras.layers import Conv2D, MaxPooling2D
 import numpy as np
 from keras.preprocessing.image import array_to_img, img_to_array,load_img
 
-from keras.layers import Flatten,Dense, Dropout,Activation
+from keras.layers import Flatten,Dense, Dropout,Activation, BatchNormalization
 from keras.optimizers import Adam
 
 from keras.models import model_from_json
 from sklearn.metrics import classification_report
+
 
 
 def LoadData(x_temp,y_temp,fileName,label):
@@ -139,35 +140,38 @@ def CreateModel():
     model = Sequential()
 
     #first layer
-    model.add(Conv2D(16, (4, 4), activation='relu', padding='same', name='conv1', input_shape=(48,48,1)) )
+    model.add(Conv2D(16, (3, 3), activation='relu', padding='same', name='conv1', input_shape=(48,48,1)) )
     model.add(MaxPooling2D(pool_size=(2,2)) )
-    
     model.add(Dropout(0.3))
-    ##model.add(BatchNormalization())
+    #model.add(BatchNormalization())
 
     #Second, third layer
-    model.add(Conv2D(32, (4, 4), activation='relu', padding='same', name='conv2', input_shape=(48,48,1)) )
-    model.add(Conv2D(32, (4, 4), activation='relu', padding='same', name='conv3', input_shape=(48,48,1)) )
-    
-    ##model.add(MaxPooling2D(pool_size=(2,2)) )
-    #model.add(Dropout(0.3))
-    ##model.add(BatchNormalization())
+    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='conv2', input_shape=(48,48,1)) )
+    model.add(Dropout(0.3))
+    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', name='conv3', input_shape=(48,48,1)) )
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.3))
+    #model.add(BatchNormalization())
 
     #4th,5th,6th layer
-    #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv4', input_shape=(48,48,1)) )
-    #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv5', input_shape=(48,48,1)) )
-    #model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv6', input_shape=(48,48,1)) )
-    #model.add(MaxPooling2D(pool_size=(2,2)) )
-    #model.add(Dropout(0.3))
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv4', input_shape=(48,48,1)) )
+    model.add(Dropout(0.3))
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv5', input_shape=(48,48,1)) )
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv6', input_shape=(48,48,1)) )
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.3))
+
     #model.add(BatchNormalization())
 
     #7th,8th,9th layer
-    #model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv7', input_shape=(48,48,1)) )
-    #model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv8', input_shape=(48,48,1)) )
-    #model.add(Conv2D(128, (3, 3), activation='relu', padding='same', name='conv9', input_shape=(48,48,1)) )
-    ##model.add(MaxPooling2D(pool_size=(2,2)) )
-    #model.add(Dropout(0.3))
-    ##model.add(BatchNormalization())
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv7', input_shape=(48,48,1)) )
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv8', input_shape=(48,48,1)) )
+    model.add(MaxPooling2D(pool_size=(2,2)) )
+    model.add(Dropout(0.3))
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', name='conv9', input_shape=(48, 48, 1)))
+    model.add(Dropout(0.3))
+    #model.add(Conv2D(64, (4, 4), activation='relu', padding='same', name='conv10', input_shape=(48, 48, 1)))
+    #model.add(BatchNormalization())
 
     
     
@@ -213,7 +217,7 @@ def CNN_make(x_train,y_train):
     '''
     address = './img_recognition/train/'
     x_train,y_train = PrepareData(x_train,y_train,address)
-    address = './img_recognition/train/'
+    address = './img_recognition/validation/'
     x_test =[]
     y_test =[]
     x_test,y_test = PrepareData(x_test,y_test,address)
@@ -229,7 +233,7 @@ def CNN_make(x_train,y_train):
     #less batch size uses less memory.
 
     #epoch is how many times you go through all samples. every epoch it tries shuffled samples
-    history =model.fit(x_train,y_train,batch_size= 64,epochs= 30,validation_data=(x_test,y_test))
+    history =model.fit(x_train,y_train,batch_size= 128,epochs= 200,validation_data=(x_test,y_test))
     
     # summarize history for accuracy
     plt.plot(history.history['accuracy'])
@@ -310,7 +314,7 @@ def CNN_evaluate(x_train,y_train):
         Parameter y_train: labels of emotions which will be used as testing data
 
     '''
-    address = './img_recognition/train/'
+    address = './img_recognition/validation/'
     x_test = []
     y_test = []
     x_test,y_test = PrepareData(x_train,y_train,address)
