@@ -111,12 +111,12 @@ def processVideo(videoname):
         second = round(timestamp%60, 2)
 
         # # video cropped for only 3 seconds for testing
-        # if timestamp >= 3: break
+        if timestamp >= 10: break
 
         frame, labels = processImage(frame, loaded_model)
         # write the timestamp and the classified emotions of the processed frame to a txt file
         for emotion in labels:
-            file.write(str(minute) + 'minute' + ' ' + str(second) + 'second' + ' ' + str(face_id) + ' ' + str(
+            file.write(str(minute) + ' minute' + ' ' + str(second) + ' second' + ' ' + str(face_id) + ' ' + str(
                 emotion) + '\n')
             face_id += 1
         # combine the processed frame to an mp4 file
@@ -179,7 +179,7 @@ def processVideo(videoname):
 ## 
 
 if __name__ == '__main__':
-   processVideo('sample2a.mp4')  ##detect face,save the image and return the total number of detected face
+   processVideo('chinestest.mp4')  ##detect face,save the image and return the total number of detected face
 ##    x_test,y_test = []
 ##    label,Imgs = CNN_predict(x_test,y_test)
 ##    VideoTagging('')
