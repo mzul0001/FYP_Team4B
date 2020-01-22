@@ -1,6 +1,6 @@
 import cv2
 from CNN import CNN_predict
-from mlp import predict
+# from mlp import predict
 from extractFeatures import extractFeatures
 from tensorflow.keras.models import model_from_json
 
@@ -43,7 +43,7 @@ def processImage(img, model):
         # thickness -- thickness
         img = cv2.rectangle(img, (x, y), (x + width, y + height), color, 2)
         cropped_face = gray_img[y:y + height, x:x + width]
-        cropped_face = cv2.resize(cropped_face, (28, 28))
+        cropped_face = cv2.resize(cropped_face, (48, 48))
 
         # predict the emotion the face displayed
         label = CNN_predict(cropped_face, model)
@@ -176,7 +176,7 @@ def processVideo(videoname):
 ## 
 
 if __name__ == '__main__':
-   processVideo('chinesetest')  ##detect face,save the image and return the total number of detected face
+   processVideo('sample2a.mp4')  ##detect face,save the image and return the total number of detected face
 ##    x_test,y_test = []
 ##    label,Imgs = CNN_predict(x_test,y_test)
 ##    VideoTagging('')
