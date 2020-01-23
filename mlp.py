@@ -8,7 +8,7 @@ from keras.models import model_from_json
 from keras.layers import Dense
 from keras.layers import Dropout
 from keras import optimizers
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 
 
 def predict(features):
@@ -21,11 +21,11 @@ def predict(features):
     '''
     print("Loading model...")
     # load json and create model
-    with open('mlp_model.json', 'r') as json_file:
+    with open('model.json', 'r') as json_file:
         loaded_model = model_from_json(json_file.read())
 
     # load weights into new model
-    loaded_model.load_weights('mlp_model.h5')
+    loaded_model.load_weights('model.h5')
 
     # Adam (Adaptive Moment Estimation) -- an algorithm for first-order gradient-based optimization of stochastic
     #                                      objective functions, based on adaptive estimates of lower-order moments
@@ -65,7 +65,7 @@ def trainNN(model, train_features, test_features, train_labels, test_labels):
     # validation_data -- the testing data set
     # the number of iterations per epoch = total data/batch_size
     # the total number of iterations = the number of iterations per epoch * epoch
-    trained = model.fit(train_features, train_labels, batch_size=512, epochs=8000, verbose=2, validation_data=(
+    trained = model.fit(train_features, train_labels, batch_size=512, epochs=600, verbose=2, validation_data=(
         test_features, test_labels), shuffle=True)
     print("Evaluating NN...")
     [loss, accuracy] = model.evaluate(test_features, test_labels)
@@ -73,25 +73,27 @@ def trainNN(model, train_features, test_features, train_labels, test_labels):
     predicted = model.predict_classes(test_features)
     category = ['ANGRY', 'DISGUST', 'FEAR', 'HAPPY', 'NEUTRAL', 'SAD', 'SURPRISE']
     print(classification_report(test_labels, predicted, target_names=category))
+    print(confusion_matrix(test_labels, predicted))
 
-    # # check for overfitting/underfitting
-    # # loss curve
-    # plt.plot(trained.history['loss'], 'r')
-    # plt.plot(trained.history['val_loss'], 'b')
-    # plt.legend(['Training loss', 'Test loss'])
-    # plt.xlabel('Epochs')
-    # plt.ylabel('Loss')
-    # plt.title('Loss Curve')
-    # plt.show()
-    #
-    # # accuracy curve
-    # plt.plot(trained.history['accuracy'], 'r')
-    # plt.plot(trained.history['val_accuracy'], 'b')
-    # plt.legend(['Training accuracy', 'Test Accuracy'])
-    # plt.xlabel('Epochs')
-    # plt.ylabel('Accuracy')
-    # plt.title('Accuracy Curve')
-    # plt.show()
+
+    # check for overfitting/underfitting
+    # loss curve
+    plt.plot(trained.history['loss'], 'r')
+    plt.plot(trained.history['val_loss'], 'b')
+    plt.legend(['Training loss', 'Test loss'])
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Loss Curve')
+    plt.show()
+
+    # accuracy curve
+    plt.plot(trained.history['accuracy'], 'r')
+    plt.plot(trained.history['val_accuracy'], 'b')
+    plt.legend(['Training accuracy', 'Test Accuracy'])
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy Curve')
+    plt.show()
 
     # serialize model to JSON
     model_json = model.to_json()
@@ -103,7 +105,7 @@ def trainNN(model, train_features, test_features, train_labels, test_labels):
     return
 
 
-def buildNN(data, units=832, classes=7):
+def buildNN(data, classes=7):
     '''
     function creates a multi layer perceptron model
     precondition: the input shape condition of the model is satisfied
@@ -121,11 +123,13 @@ def buildNN(data, units=832, classes=7):
     model.add(Dropout(0.5, input_shape=(input_shape,)))
 
     # hidden layers
-    for i in range(2):
-        # units -- the number of neurons in the hidden layer
-        # activation -- the function used by the neurons for calculation
-        model.add(Dense(units, activation='relu'))
-        model.add(Dropout(0.5))
+    # activation -- the function used by the neurons for calculation
+    model.add(Dense(832, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(640, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(832, activation='relu'))
+    model.add(Dropout(0.2))
 
     # output layer
     model.add(Dense(classes, activation='softmax'))
