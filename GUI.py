@@ -13,8 +13,9 @@ def browsebutton():
     This function is in charge of allowing the users to choose video files only which are in the format of mp4,
     flv,avi,and mkv. All the remaining file types will remain hidden
     precondition:
-    :param: none
-    :return: none
+    :param:
+    postcondition:
+    :return:
     '''
     filename = tk.filedialog.askopenfilename(filetypes=(("Video files", "*.mp4;*.flv;*.avi;*.mkv"),
                                                         ("All files", "*.*")))
@@ -37,6 +38,7 @@ def loadingwindow1(filename):
     to be processed
     precondition: filename must be video type file which are in the format of mp4, flv,avi,and mkv
     :param filename: This is the file we choose to process
+    postcondition:
     :return: the progress bar indicating the preprocessing of the video occuring in the back end
     '''
     mainwindow.destroy()
@@ -60,9 +62,11 @@ def loadingwindow1(filename):
 def start_thread(filename):
     '''
     This function will allow the execution of the progress bar where the progress bar must run in another thread.
-    This is because if the progress bar is not run in another thread, Tkinter does not supprot dual- threading , that
+    This is because if the progress bar is not run in another thread, Tkinter does not support dual- threading , that
     will cause the whole GUI to freeze and only displaying the progress after the processing is done
+    precondition:
     :param filename:This is the file we choose to process
+    postcondition:
     :return: the progress bar indicating the start of processing the video
     '''
     global t1
@@ -77,9 +81,12 @@ def check_thread():
     This function keep checking whether the backend has ended or not. If the backend processes is finished, it will
     destroy the progress bar and show the output window of our software. Update_idle must also happen to update the
     progress bar
-    precondition:none
+    precondition:
+    :param:
+    postcondition:
+    :return:
     '''
-    #checking whether the progress bar thread is alive or not
+    # checking whether the progress bar thread is alive or not
     if t1.is_alive():
         loadingwindow.after(10, check_thread)
         loadingwindow.update_idletasks()
@@ -94,6 +101,9 @@ def loginwindow():
     This function creates the login window where in the login window, users are able to register if they have not
     created their username and password, or users can login if they are existing users. A help button is also present
     in the login window to teach the user how to register.
+    precondition:
+    :param:
+    postcondition:
     :return: GUI with all the buttons and label being created
     '''
     global loginwindow
@@ -131,7 +141,7 @@ def loginwindow():
     global username_verification
     global password_verification
 
-    #converting it to string
+    # converting it to string
     username_verification = tk.StringVar()
     password_verification = tk.StringVar()
 
@@ -150,8 +160,7 @@ def loginwindow():
     loginbutton = tk.Button(loginwindow, text="Login", width=20, command=verifylogin)
     loginbutton.place(relx=0.7, rely=0.80)
 
-    #inserting the logo in the window
-
+    # inserting the logo in the window
     load = Image.open('4b.png')
     load = load.resize((150, 150), Image.ANTIALIAS)
     render = ImageTk.PhotoImage(load)
@@ -171,10 +180,10 @@ def helpwindow1():
     This function will create a window to educate the user on how to register and login.
     There are texts created step by step educating the users or user can choose to play a video where a
     step-by-step guide is shown.
-    precondition:none
-    :param:none
-    postcondition:none
-    :return:none
+    precondition:
+    :param:
+    postcondition:
+    :return:
     '''
     loginhelpwindow = tk.Toplevel(loginwindow)
     loginhelpwindow.geometry("400x300+630+250")
@@ -190,6 +199,7 @@ def helpwindow1():
     textguide.insert(tk.END, "1.Click the register button.\n\n2.Type your desired unique username and password."
                              "\n\n3.After registration, close the register window and input the registered username "
                              "and password to login!")
+
     #user cannot edit the text
     textguide.config(state=tk.DISABLED)
 
@@ -207,8 +217,8 @@ def outputvideoplay2():
     This function allows the operating system to browse through a default media player in our device. After locating
     the default media player, it will run the existing video that is in the directory.
     precondition: must be an mp4 file
-    :param:none
-    postcondition:none
+    :param:
+    postcondition:
     :return: video being played
     '''
     video_name = 'loginhelp.mp4'
@@ -221,23 +231,24 @@ def verifylogin():
     permission is granted to use the software. However, it will indicating a login fail if the username enter a
     wrong username or password or the user has not registered yet.
 
-    **This login will be improved by using online database where the user can store all P&C videos in their database
+    This login will be improved by using online database where the user can store all P&C videos in their database
     or store valid information about the processed video on that database
     precondition:
-    :param:none
-    postcondition:none
-    :return:none
+    :param:
+    postcondition:
+    :return:
     '''
     loginusername = username_verification.get()
     loginpassword = password_verification.get()
-    #delete the entry text once user input
+
+    # delete the entry text once user input
     password_entry.delete(0, tk.END)
     username_entry.delete(0, tk.END)
     registermember = "users.txt"
-    #now all username and password is store in the file
+
+    # now all username and password is stored in the file
     file = open(registermember, 'r')
     filecontent = file.read().splitlines()
-    print(filecontent)
     flag = False
     for i in range(len(filecontent)):
         if filecontent[i] == "username " + str(loginusername):
@@ -256,10 +267,10 @@ def verifylogin():
 def destroy1():
     '''
     This function will destroy a window
-    precondition:none
-    :param:none
-    postcondition: none
-    :return: none
+    precondition:
+    :param:
+    postcondition:
+    :return:
     '''
     loginwindow.destroy()
     firstwindow()
@@ -268,15 +279,15 @@ def destroy1():
 def loginsuccess():
     '''
     This function will create a window is to show the user has logged in successfully
-    preconditon:password and username must be in strin
-    :param: none
-    postcondition:none
-    :return:window indicating succesful login
+    preconditon:password and username must be in string
+    :param:
+    postcondition:
+    :return: window indicating succesful login
     '''
     global loginsucess1
     loginsucess1 = tk.Toplevel(loginwindow)
-    loginsucess1.title("Successful")
-    loginsucess1.geometry("200x150+700+300")
+    loginsucess1.title("Login success")
+    loginsucess1.geometry("250x150+630+250")
     loginlabel = tk.Label(loginsucess1, text="Login successfully", fg="green")
     loginlabel.config(font=("Arial", 10))
     loginlabel.place(relx=0.15, rely=0.1)
@@ -287,29 +298,29 @@ def loginsuccess():
 def loginfail():
     '''
     This function will create a window to show that the user has failed to login
-    precondition:password and username must be in string
-    :param:none
-    postcondition:none
+    precondition: password and username must be in string
+    :param:
+    postcondition:
     :return: window indicating a failed login
     '''
     global loginfail1
     loginfail1 = tk.Toplevel(loginwindow)
-    loginfail1.title("FAIL")
-    loginfail1.geometry("200x150+700+300")
-    loginlabel = tk.Label(loginfail1, text="Login Fail", fg="red")
+    loginfail1.title("Login Fail")
+    loginfail1.geometry("250x150+630+250")
+    loginlabel = tk.Label(loginfail1, text="Login Failed", fg="red")
     loginlabel.config(font=("Arial", 10))
     loginlabel.place(relx=0.15, rely=0.1)
-    loginfailbutton = tk.Button(loginfail1, text="OKAY", width=10, command=loginfail1.destroy)
+    loginfailbutton = tk.Button(loginfail1, text="OK", width=10, command=loginfail1.destroy)
     loginfailbutton.place(relx=0.5, rely=0.6)
 
 
 def registerswindow():
     '''
     This function will create a window that allows the user to register so he/she can use our software.
-    precondition:none
-    :param:none
-    postcondition: none
-    :return: none
+    precondition:
+    :param:
+    postcondition:
+    :return:
     '''
     global username_enter
     global username
@@ -320,8 +331,7 @@ def registerswindow():
     username = tk.StringVar()
     password = tk.StringVar()
 
-    # registerwindow=tk.Tk()
-    registerwindow.geometry("300x200+550+250")
+    registerwindow.geometry("300x200+630+250")
     registerwindow.title("Register")
 
     registerlabel = tk.Label(registerwindow, text="Please fill in your details!", fg='red')
@@ -350,10 +360,10 @@ def registered_user():
     This function will check whether the user has already registered or not. If the user has not registered,
     there will be no error, however if the user has registered, a pop out will show that fail registration has occured,
     and please input a new username and password
-    precondition:none
-    :param:none
-    postcondition:none
-    :return:none
+    precondition:
+    :param:
+    postcondition:
+    :return:
     '''
     username_info = username.get()
     password_info = password.get()
@@ -404,9 +414,9 @@ def wrongwindow():
     '''
     This function is to show the user that he/she needs to select an appropriate video file. A window will pop out
     to show that the user must input a file or a valid file must be selected in order for processing to occur.
-    precondition:none
-    :param:none
-    postcondition:none
+    precondition:
+    :param:
+    postcondition:
     :return:window showing a valid file must be selected
     '''
     wrongwindow = tk.Tk()
@@ -425,19 +435,19 @@ def secondWindow():
     This function will create a window to educate the user on how to correctly user our software so
     no errors will occur during the execution of our software. If the user is not familiar with english, a video
     will also be shown on how to use our software
-    precondition:none
-    :param:none
-    postcondition:none
-    :return:none
+    precondition:
+    :param:
+    postcondition:
+    :return:
     '''
     help_window = tk.Tk()
-    help_window.geometry("400x500+450+50")
+    help_window.geometry("400x500+550+50")
     help_window.title("Help")
     label = tk.Label(help_window, text="Software Tutorial", fg='red')
     label.config(font=("Arial", 20))
     label.place(relx=0.05, rely=0.05)
 
-    #Step by Step guide
+    # Step by Step guide
     textguide = tk.Text(help_window, height=18, width=40, fg='blue', wrap=WORD)
     textguide.place(relx=0.05, rely=0.20)
     textguide.insert(tk.END, "1.After login, the main menu will pop out.\n\n2.Read through the requirements before "
@@ -459,8 +469,8 @@ def outputvideoplay3():
        This function allows the operating system to browse through a default media player in our device. After locating
        the default media player, it will run the existing video that is in the directory.
        precondition: must be an mp4 file
-       :param:none
-       postcondition:none
+       :param:
+       postcondition:
        :return: video being played
        '''
     bvideo_name = "softwarehelp.mp4"  # This is your video file path
@@ -481,10 +491,10 @@ def thirdWindow():
     outputwindow = tk.Tk()
     outputwindow.geometry("600x800+0+0")
     outputwindow.title("Output")
-    label = tk.Label(outputwindow, text="Current Output of the Video")
+    label = tk.Label(outputwindow, text="Classified Emotions")
     label.config(font=("Arial", 20))
     label.place(relx=0.05, rely=0.05)
-    label1 = tk.Label(outputwindow, text="These are the classifications of emotions in the video")
+    label1 = tk.Label(outputwindow, text="Your output video is saved under Tagged_video.avi")
     label.config(font=("Arial", 12))
     label1.place(relx=0.05, rely=0.09)
     playbutton = tk.Button(outputwindow, text="Play Video", command=outputvideoplay)
@@ -524,7 +534,6 @@ def thirdWindow():
     registermember = "label.txt"
     file = open(registermember, 'r')
     filecontent = file.read().split()
-    print(filecontent)
 
     angertext = tk.Text(outputwindow, height=4, width=40)
     angertext.place(relx=0.05, rely=0.145)
@@ -588,7 +597,7 @@ def outputvideoplay():
     postcondition:none
     :return: video being played
     '''
-    bvideo_name = "Tagged_video.mp4"  # This is your video file path
+    bvideo_name = "Tagged_video.avi"  # This is your video file path
     os.system(bvideo_name)
 
 
@@ -602,38 +611,38 @@ def firstwindow():
     '''
     global mainwindow
     mainwindow = tk.Tk()
-    mainwindow.title("Emotion Detection")
+    mainwindow.title("Home page")
     mainwindow.geometry("600x700+450+50")
 
     button2 = tk.Button(mainwindow, text="Help", width=20, command=secondWindow)
-    button2.place(relx=0.65, rely=0.8)
+    button2.place(relx=0.65, rely=0.82)
 
     load = Image.open('logo.png')
     render = ImageTk.PhotoImage(load)
     image = Label(image=render)
     image.image = render
-    image.place(relx=0.57, rely=0.13)
+    image.place(relx=0.57, rely=0.4)
 
     uploadbutton = tk.Button(mainwindow, text="Upload", command=browsebutton, width=20)
-    uploadbutton.place(relx=0.65, rely=0.75)
+    uploadbutton.place(relx=0.65, rely=0.76)
 
     label = tk.Label(mainwindow, text="Emotion Detection")
     label.config(font=("Arial", 30))
     label.place(relx=0.25, rely=0.05)
 
     bg = mainwindow.cget("background")
-    text2 = tk.Text(mainwindow, height=10, width=37, bg=bg, fg='blue', wrap=WORD)
+    text2 = tk.Text(mainwindow, height=8, width=67, bg=bg, fg='blue', wrap=WORD)
     text2.place(relx=0.05, rely=0.14)
-    text2.insert(tk.END, "Overview \nWe are Team4B, a group of 4 final year students in Monash University Malaysia "
-                         "currently working on a project to detect macro emotions of a subject in a video.")
+    text2.insert(tk.END, "We are Team4B, a group of 4 final year students in Monash University Malaysia "
+                         "currently working on a project to detect macro emotions of a subject in a video. This "
+                         "software is meant to annotate emotions of a subject in a video.")
     text2.config(state=tk.DISABLED)
 
     text1 = tk.Text(mainwindow, height=20, width=42, wrap=WORD, fg='red')
-    text1.insert(tk.END, "Requirement for Emotion Detection \n1. Subject of analysis shouldn't be more than 2 meters "
-                         "away from the camera\n\n2. Can process up to 30 minutes of video\n\n 3. Video should "
-                         "be recorded in good lighting\n\n4. Video should be recorded in decent quality\n\n5. "
-                         "Only one subject should be present in the video\n\n6. Local machine must have an existing "
-                         "video media player")
+    text1.insert(tk.END, "Usage Requirements \n1. Subject shouldn't be more than 2 meters away from the camera\n\n2. "
+                         "The software can process up to 30 minutes of video\n\n 3. Video should be recorded in good "
+                         "lighting\n\n4. Video should be recorded in decent quality\n\n5. Only one subject should be "
+                         "present in the video\n\n6. Local machine must have an existing video media player")
     text1.config(state=tk.DISABLED)
     text1.config(font=("Arial", 10))
     text1.place(relx=0.05, rely=0.4)
