@@ -11,10 +11,9 @@ def extractFeatures(img):
     postcondition: the original image is not modified
     :return: the hog features of the image
     '''
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     dim = (48, 48)
     # resize image so hog sliding window does not go out of the image bounds
-    gray_img = cv2.resize(gray_img, dsize=dim)
+    gray_img = cv2.resize(img, dsize=dim)
     # non-default HOG values
     win_size = dim
     cell_size = (8, 8)
@@ -24,7 +23,7 @@ def extractFeatures(img):
 
     # win_size -- size of image
     hog = cv2.HOGDescriptor(win_size, block_size, block_stride, cell_size, nbins, 1, -1, 0, 0.2, 1, 64)
-    features = hog.compute(gray_img)
+    features = hog.compute(img)
 
     # # reference: https://stackoverflow.com/questions/6090399/get-hog-image-features-from-opencv-python
     # n_cells = (gray_img.shape[0] // cell_size[0], gray_img.shape[1] // cell_size[1])
